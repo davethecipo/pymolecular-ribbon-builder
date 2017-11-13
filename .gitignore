@@ -1,0 +1,12 @@
+# Created by .ignore support plugin (hsz.mobi)
+# ignore virtual environments
+venv*
+# ignore compiled bytecode
+*.pyc
+# ignore egg files
+*.egg-info*
+# ignore pycharm config
+.idea
+docs/_build
+htmlcov
+.eggs
