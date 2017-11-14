@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 class Config(object):
-    """Just a container for CLI arguments."""
+    """A container for CLI arguments."""
 
     def __init__(self):
         # values are just set to None because we use this object as the namespace
@@ -46,127 +46,126 @@ class Config(object):
         return self.__str__()
 
 
-def obtain_atoms(lines_list):
-    """Returns a dictionary of elements.
+class CLIParser(object):
+    def __init__(self):
+        self.parser = argparse.ArgumentParser(
+            description='Build a molecular ribbon starting from a small molecule.')
+        self._populate_parser_opts()
+        self.cli_config = Config()
+        self.config = self.default_config()
 
-    Format: {'element_label': [np.array([x0, y0]), ...]}
+    def _populate_parser_opts(self):
+        self.parser.add_argument('-b', '--base', nargs='*',
+                                 help='list of atoms for the base')
 
-    lines_list: list where each element is a string (a line with an atom
-      from xyz file)
-    Example: {'C': [[0, 0], [1, 1]],
-              'H': [[2, 2], [3, 3]] }
+        self.parser.add_argument('-ll' '--lower-left', nargs='*', dest="lower_left",
+                                 help='list of atoms that close the lower left side')
+        self.parser.add_argument('-oll', '--lower-left-offset', nargs=2, type=int,
+                                 dest='ll_offset')
 
-    In the example, there're two carbon atoms with position (0, 0) and (1, 1)
-    and two hydrogen atoms with position (2, 2) and (3, 3). The list elements
-    are actually numpy arrays, not simple lists.
-    """
-    atoms = {}
-    for line in lines_list:
-        # ignore the z component
-        element, x, y = line.rstrip('\n').strip(' ').split(' ')[:-1]
-        if element not in atoms.keys():
-            atoms[element] = []
-        atoms[element].append(np.array([float(x), float(y)]))
+        self.parser.add_argument('-lr', '--lower-right', nargs='*', dest="lower_right",
+                                 help='list of atoms that close the lower right side')
+        self.parser.add_argument('-olr', '--lower-right-offset', nargs=2, type=int,
+                                 dest='lr_offset')
 
-    return atoms
+        self.parser.add_argument('-ul', '--upper-left', nargs='*', dest="upper_left",
+                                 help='list of atoms that close the upper left side')
+        self.parser.add_argument('-oul', '--upper-left-offset', nargs=2, type=int,
+                                 dest='ul_offset')
 
+        self.parser.add_argument('-ur', '--upper_right', nargs='*', dest='upper_right',
+                                 help='list of atoms that close the upper right side')
+        self.parser.add_argument('-our', '--upper-right-offset', nargs=2, type=int,
+                                 dest='ur_offset')
 
-def atoms_dict_from_path(filepath):
-    with open(filepath, 'rt') as f:
-        raw_lines = f.readlines()[2:]
-    return obtain_atoms(raw_lines)
+        self.parser.add_argument('-a1', nargs=2,
+                                 help='a1 translation vector. The first atom is the start of the vector, the second is the end.')
+        self.parser.add_argument('-a2', nargs=2,
+                                 help='a2 translation vector. Same format as a1')
+        self.parser.add_argument('-n', type=int, help='repetition for a1')
+        self.parser.add_argument('-m', type=int, help='repetition for a2')
+        self.parser.add_argument('-c', '--cell',
+                                 help='YAML file containing the translation info')
+        self.parser.add_argument('--comment', help="Comment to put in the output file")
+        self.parser.add_argument('in', help='The input .xyz file')
+        self.parser.add_argument('out', help='The output .xyz I should write to')
+
+        self.parser.add_argument('--debug', action="store_true",
+                                 help='Print debug statements')
+
+    @staticmethod
+    def default_config():
+        base_config = {'base': None,
+                       'lower_left': None,
+                       'll_offset': [0, 0],
+                       'lower_right': None,
+                       'lr_offset': [0, 0],
+                       'upper_left': None,
+                       'ul_offset': [0, 0],
+                       'upper_right': None,
+                       'ur_offset': [0, 0],
+                       'a1': None,
+                       'a2': None,
+                       'n': None,
+                       'm': None,
+                       'comment': 'Comment'
+                       }
+        return base_config
+
+    @staticmethod
+    def required_opts():
+        return ['base', 'a1', 'a2', 'n', 'm']
+
+    def _check_required_ops(self, config):
+        for parameter in self.required_opts():
+            if config[parameter] is None:
+                raise Exception(
+                    'Error: the {} parameter is not set anywhere'.format(
+                        parameter))
+        if len(config['base']) == 0:
+            raise Exception("Error: the list of base atoms is empty.")
+#TODO custom exceptions
+
+    def _apply_yaml_config(self, base_config):
+        if self.cli_config.cell is not None:
+            with open(self.cli_config.cell, 'rt') as f:
+                base_config.update(yaml.load(f.read()))
+
+    def _apply_cli_args(self, base_config):
+        cli_dict = vars(self.cli_config)
+        for parameter, value in cli_dict.items():
+            if value is not None:
+                base_config[parameter] = value
+
+    def applyCLI(self):
+        self.parser.parse_args(namespace=self.cli_config)  # namespace can't be a dict
+        if self.cli_config.debug:
+            logger.setLevel(logging.DEBUG)
+        # populate base_config with the values from the config file
+        self._apply_yaml_config(self.config)
+        # now if CLI arguments exist, they should override the config file
+        self._apply_cli_args(self.config)
+        # after merging all options, I need to check that required options are present
+        self._check_required_ops(self.config)
+        logger.debug('After merging all options and checking required arguments, self.config is {}'.format(self.config))
+        # input and output files are required arguments of the ArgumentParser, therefore I don't need to check their
+        # existance
+        self.config['in'] = os.path.join(os.getcwd(), self.config['in'])
+        self.config['out'] = os.path.join(os.getcwd(), self.config['out'])
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description='Build a molecular ribbon starting from a small molecule.')
-    parser.add_argument('-b', '--base', nargs='*',
-                        help='list of atoms for the base')
+    cli_parser = CLIParser()
+    cli_parser.applyCLI()
+    # aprire con openbabel la molecola di input, creare quella di output vuota
+    builder = t.MolBuilder(oligomer, polymer, a1, a2, n, m)
+    builder.set_top_border()
+    builder.set_bottom_border()
+    builder.set_left_border()
+    builder.set_right_border()
+    builder.create_all()
 
-    parser.add_argument('-ll' '--lower-left', nargs='*', dest="lower_left",
-                        help='list of atoms that close the lower left side')
-    parser.add_argument('-oll', '--lower-left-offset', nargs=2, type=int,
-                        dest='ll_offset')
-
-    parser.add_argument('-lr', '--lower-right', nargs='*', dest="lower_right",
-                        help='list of atoms that close the lower right side')
-    parser.add_argument('-olr', '--lower-right-offset', nargs=2, type=int,
-                        dest='lr_offset')
-
-    parser.add_argument('-ul', '--upper-left', nargs='*', dest="upper_left",
-                        help='list of atoms that close the upper left side')
-    parser.add_argument('-oul', '--upper-left-offset', nargs=2, type=int,
-                        dest='ul_offset')
-
-    parser.add_argument('-ur', '--upper_right', nargs='*', dest='upper_right',
-                        help='list of atoms that close the upper right side')
-    parser.add_argument('-our', '--upper-right-offset', nargs=2, type=int,
-                        dest='ur_offset')
-
-    parser.add_argument('-a1', nargs=2,
-                        help='a1 translation vector. The first atom is the start of the vector, the second is the end.')
-    parser.add_argument('-a2', nargs=2,
-                        help='a2 translation vector. Same format as a1')
-    parser.add_argument('-n', type=int, help='repetition for a1')
-    parser.add_argument('-m', type=int, help='repetition for a2')
-    parser.add_argument('-c', '--cell',
-                        help='YAML file containing the translation info')
-    parser.add_argument('--comment', help="Comment to put in the output file")
-    parser.add_argument('in', help='The input .xyz file')
-    parser.add_argument('out', help='The output .xyz I should write to')
-
-    parser.add_argument('--debug', action="store_true",
-                        help='Print debug statements')
-
-    cli_config = Config()
-    parser.parse_args(namespace=cli_config)  # namespace can't be a dict
-
-    if cli_config.debug:
-        logger.setLevel(logging.DEBUG)
-
-    # set here the default values
-    base_config = {'base': None,
-                   'lower_left': None,
-                   'll_offset': [0, 0],
-                   'lower_right': None,
-                   'lr_offset': [0, 0],
-                   'upper_left': None,
-                   'ul_offset': [0, 0],
-                   'upper_right': None,
-                   'ur_offset': [0, 0],
-                   'a1': None,
-                   'a2': None,
-                   'n': None,
-                   'm': None,
-                   'comment': 'Comment'
-                   }
-    # populate base_config with the values from the config file
-    if cli_config.cell is not None:
-        with open(cli_config.cell, 'rt') as f:
-            base_config.update(yaml.load(f.read()))  # dictionary
-    cli_dict = vars(cli_config)
-    # if CLI arguments exist, they should override the config file
-    for parameter, value in cli_dict.items():
-        if value is not None:
-            base_config[parameter] = value
-    # Now check for input
-    # Note that argparse uses the type hint for n and m, therefore I don't check those
-    # the same goes for the offset values, they are type hinted
-    # the offset values are also defaulted to 0 in base_config
-    # a1 and a2 have the correct length thanks to argparse, don't check those
-    required = ['base', 'a1', 'a2', 'n', 'm']
-    for parameter in required:
-        if base_config[parameter] is None:
-            raise Exception(
-                'Error: the {} parameter is not set anywhere'.format(
-                    parameter))
-    if len(base_config['base']) == 0:
-        raise Exception("Error: the list of base atoms is empty.")
-
-    logger.debug('base_config is {}'.format(base_config))
-
-    in_file = os.path.join(os.getcwd(), base_config['in'])
-    out_file = os.path.join(os.getcwd(), base_config['out'])
+    # obconversion, write...
 
     atoms_positions = atoms_dict_from_path(in_file)
 

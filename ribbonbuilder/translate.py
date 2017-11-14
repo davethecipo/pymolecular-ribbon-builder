@@ -10,18 +10,66 @@ class Atom(namedtuple('Atom', 'element index')):
     pass
 
 
-def _iter_atoms(atom_indices, atom_coordinates, translation, out_atoms):
-    """Helper function for build_bulk and build_closure functions"""
-    for element, indices in atom_indices.items():
-        for index in indices:
-            atom_initial_position = atom_coordinates[element][index]
-            final_position = atom_initial_position + translation
-            # in python 2 dict.items() doesn't reflect changes after the
-            # .items() call, but since the dict doesn't change, in this case
-            # it doesn't matter
-            if element not in out_atoms.keys():
-                out_atoms[element] = []
-            out_atoms[element].append(final_position)
+class MolBuilder(object):
+    def __init__(self, oligomer, polymer, a1, a2, n, m):
+        self.oligomer = oligomer
+        self.polymer = polymer
+        self.a1 = a1
+        self.a2 = a2
+        self.n = n
+        self.m = m
+        self.top_border = self._default_border()
+        self.bottom_border = self._default_border()
+        self.left_border = self._default_border()
+        self.right_border = self._default_border()
+
+    @staticmethod
+    def _default_border():
+        return {'atoms': [], 'offset': 0}
+
+    def set_top_border(self, atom_indexes, offset):
+        pass
+
+    def set_bottom_border(self, atom_indexes, offset):
+        pass
+
+    def set_left_border(self, atom_indexes, offset):
+        pass
+
+    def set_right_border(self, atom_indexes, offset):
+        pass
+
+    def create_bulk(self):
+        pass
+
+    def create_left_border(self):
+        pass
+
+    def create_right_border(self):
+        pass
+
+    def create_top_border(self):
+        pass
+
+    def create_bottom_border(self):
+        pass
+
+    def create_all(self):
+        pass
+
+    @staticmethod
+    def _iter_atoms(atom_indexes, atom_coordinates, translation, out_atoms):
+        """Helper function for build_bulk and build_closure functions"""
+        for element, indices in atom_indices.items():
+            for index in indices:
+                atom_initial_position = atom_coordinates[element][index]
+                final_position = atom_initial_position + translation
+                # in python 2 dict.items() doesn't reflect changes after the
+                # .items() call, but since the dict doesn't change, in this case
+                # it doesn't matter
+                if element not in out_atoms.keys():
+                    out_atoms[element] = []
+                out_atoms[element].append(final_position)
 
 
 def build_closure_lower_left(closure_atoms, a1, a2, n, m, atoms, offset):

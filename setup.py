@@ -15,8 +15,8 @@ setup(name='molecular-ribbon-builder',
           'console_scripts': [
               'molribbon2d = ribbonbuilder.molribbon2d:main']
       },
-      install_requires=['PyYAML', 'numpy'],
+      install_requires=['PyYAML', 'numpy', 'openbabel'],
       extras_require={
-          'dev': [ 'Sphinx', 'alabaster' ]
+          'dev': [ 'Sphinx', 'alabaster', 'pytest' ]
       }
      )
