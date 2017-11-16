@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import logging
-import os
 import sys
 
 import openbabel
@@ -16,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 def main():
     cli = CLIParser()
-    cli.applyCLI()
+    cli.applyCLI(args=sys.argv[1:])
     input_file = cli.conf['in']
     oligomer = obwrapper.readFile(input_file)
     polymer = openbabel.OBMol()

@@ -134,30 +134,30 @@ class CLIParser(object):
     def _check_required_ops(self, config):
         for parameter in self.required_opts():
             if config[parameter] is None:
-                raise RequiredParameter(parameter)
+                raise RequiredParameter(config, parameter)
         if len(config['base']) == 0:
             raise EmptyBaseError(config)
 
-    def _apply_yaml_config(self, base_config):
+    def _apply_yaml_config(self):
         if self.cli_config.cell is not None:
             with open(self.cli_config.cell, 'rt') as f:
-                base_config.update(yaml.load(f.read()))
+                self.conf.update(yaml.load(f.read()))
 
-    def _apply_cli_args(self, base_config):
+    def _apply_cli_args(self):
         cli_dict = vars(self.cli_config)
         for parameter, value in cli_dict.items():
             if value is not None:
-                base_config[parameter] = value
+                self.conf[parameter] = value
 
-    def applyCLI(self):
+    def applyCLI(self, args):
         # use a class because namespace can not be a dict
-        self.parser.parse_args(namespace=self.cli_config)
+        self.parser.parse_args(args=args, namespace=self.cli_config)
         if self.cli_config.debug:
             logger.setLevel(logging.DEBUG)
         # populate base_config with the values from the config file
-        self._apply_yaml_config(self.conf)
+        self._apply_yaml_config()
         # now if CLI arguments exist, they should override the config file
-        self._apply_cli_args(self.conf)
+        self._apply_cli_args()
         # after merging all options, check for required options
         self._check_required_ops(self.conf)
         logger.debug('After merging all options and checking required'
