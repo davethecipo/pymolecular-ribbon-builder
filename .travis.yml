@@ -3,7 +3,31 @@ python:
   - "2.7"
   - "3.4"
   - "3.6"
-# command to install dependencies
-install: "pip install -e .[dev]"
+# since python-openbabel is available for python2 only, I
+# install the dependencies for installing from source
+addons:
+  apt:
+    packages:
+    - cmake
+    - build-essential
+    - swig
+before_install:
+  - sudo apt-get install libeigen3-dev
+  - cd /home/travis
+  - if [ ! -d "openbabel" ]; then git clone https://github.com/openbabel/openbabel.git; fi
+  - cd openbabel
+  - git checkout openbabel-2-4-1
+  - if [ ! -d "build" ]; then mkdir build; fi
+  - cd build
+  - cmake -DPYTHON_BINDINGS=ON -DRUN_SWIG=ON ..
+  - make -j2
+  - sudo make install
+  - sudo ldconfig
+cache:
+  directories:
+  - /home/travis/openbabel
+install:
+ - cd $TRAVIS_BUILD_DIR
+ - pip install -e .[dev]
 # command to run tests
 script: py.test tests
