@@ -13,9 +13,9 @@ logging.basicConfig(stream=sys.stderr, level=logging.ERROR)
 logger = logging.getLogger(__name__)
 
 
-def main():
+def main(args=sys.argv[1:]):
     cli = CLIParser()
-    cli.applyCLI(args=sys.argv[1:])
+    cli.applyCLI(args=args)
     input_file = cli.conf['in']
     oligomer = obwrapper.readFile(input_file)
     polymer = openbabel.OBMol()
@@ -39,4 +39,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
