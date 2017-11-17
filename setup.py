@@ -17,6 +17,6 @@ setup(name='molecular-ribbon-builder',
       },
       install_requires=['PyYAML', 'numpy', 'openbabel'],
       extras_require={
-          'dev': [ 'Sphinx', 'alabaster', 'pytest', 'pytest-cov']
+          'dev': [ 'Sphinx', 'alabaster', 'pytest', 'pytest-cov', 'codecov']
       }
      )
