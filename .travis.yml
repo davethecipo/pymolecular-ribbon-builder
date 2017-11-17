@@ -30,6 +30,6 @@ install:
  - cd $TRAVIS_BUILD_DIR
  - pip install -e .[dev]
 # command to run tests
-script: py.test tests
+script: py.test tests --cov=./ribbonbuilder/
 after_success:
   - codecov
