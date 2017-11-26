@@ -22,8 +22,8 @@ before_install:
   - cd openbabel
   - ls -la
   - git checkout openbabel-$OBABEL_VERSION
-  - if [ ! -d "build" ]; then mkdir build; fi
-  - cd build
+  - if [ ! -d "build-$OBABEL_VERSION" ]; then mkdir build-$OBABEL_VERSION; fi
+  - cd build-$OBABEL_VERSION
   - cmake -DPYTHON_BINDINGS=ON -DRUN_SWIG=ON ..
   - make -j2
   - sudo make install
