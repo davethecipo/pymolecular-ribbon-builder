@@ -17,6 +17,7 @@ before_install:
   - cd /home/travis
   - if [ ! -d "openbabel" ]; then git clone https://github.com/openbabel/openbabel.git; fi
   - cd openbabel
+  - ls -la
   - git checkout openbabel-2-4-1
   - if [ ! -d "build" ]; then mkdir build; fi
   - cd build
