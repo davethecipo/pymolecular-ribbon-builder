@@ -15,7 +15,7 @@ addons:
 before_install:
   - sudo apt-get install libeigen3-dev
   - cd /home/travis
-  - ls -la
+  - ls -la openbabel
   - if [ ! -d "openbabel" ]; then git clone https://github.com/openbabel/openbabel.git; fi
   - cd openbabel
   - ls -la
