@@ -28,6 +28,7 @@ before_install:
   - make -j2
   - sudo make install
   - sudo ldconfig
+  - export PYTHONPATH=/usr/local/lib:$PYTHONPATH
 cache:
   directories:
   - /home/travis/openbabel
