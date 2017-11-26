@@ -4,6 +4,9 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
+env:
+  - OBABEL_VERSION=2-4-1
+  - OBABEL_VERSION=2-3-0
 # since python-openbabel is available for python2 only, I
 # install the dependencies for installing from source
 addons:
@@ -18,7 +21,7 @@ before_install:
   - if [ ! -d "openbabel/.git" ]; then git clone https://github.com/openbabel/openbabel.git; fi
   - cd openbabel
   - ls -la
-  - git checkout openbabel-2-4-1
+  - git checkout openbabel-$OBABEL_VERSION
   - if [ ! -d "build" ]; then mkdir build; fi
   - cd build
   - cmake -DPYTHON_BINDINGS=ON -DRUN_SWIG=ON ..
