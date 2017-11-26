@@ -6,7 +6,7 @@ python:
   - "3.6"
 env:
   - OBABEL_VERSION=2-4-1
-  - OBABEL_VERSION=2-3-0
+  - OBABEL_VERSION=2-3-2
 # since python-openbabel is available for python2 only, I
 # install the dependencies for installing from source
 addons:
