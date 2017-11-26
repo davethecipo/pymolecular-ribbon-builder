@@ -30,7 +30,8 @@ cache:
   - /home/travis/openbabel
 install:
  - cd $TRAVIS_BUILD_DIR
- - pip install -e .[dev]
+ - pip install -e .
+ - pip install -r test_requirements.txt
 # command to run tests
 script: py.test tests --cov=./ribbonbuilder/
 after_success:
