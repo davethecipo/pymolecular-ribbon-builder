@@ -28,7 +28,6 @@ before_install:
   - make -j2
   - sudo make install
   - sudo ldconfig
-  - ls -laR /home/travis/.local/lib
   - export PYTHONPATH=/home/travis/virtualenv/python*/local/lib/python*/site-packages
   - echo $PYTHONPATH
   - echo $PATH
