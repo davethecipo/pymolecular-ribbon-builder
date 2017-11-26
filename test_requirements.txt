@@ -1,0 +1,8 @@
+Sphinx
+alabaster
+pytest
+pytest-cov
+codecov
+scripttest
+sphinxcontrib-fulltoc
+sphinx_rtd_theme
