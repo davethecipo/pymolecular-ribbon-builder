@@ -24,10 +24,13 @@ before_install:
   - git checkout openbabel-$OBABEL_VERSION
   - if [ ! -d "build-$OBABEL_VERSION" ]; then mkdir build-$OBABEL_VERSION; fi
   - cd build-$OBABEL_VERSION
-  - cmake -DPYTHON_BINDINGS=ON -DRUN_SWIG=ON -DCMAKE_INSTALL_PREFIX=/home/travis/.local/bin ..
+  - cmake -DPYTHON_BINDINGS=ON -DRUN_SWIG=ON -DCMAKE_INSTALL_PREFIX=/home/travis/.local/ ..
   - make -j2
   - sudo make install
   - sudo ldconfig
+  - ls -laR /home/travis/.local/lib
+  - export PYTHONPATH=/home/travis/.local/lib/python*/site-packages
+  - echo $PYTHONPATH
   - echo $PATH
 cache:
   directories:
