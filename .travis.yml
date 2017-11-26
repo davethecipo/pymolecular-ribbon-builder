@@ -7,6 +7,8 @@ python:
 env:
   - OBABEL_VERSION=2-4-1
   - OBABEL_VERSION=2-3-2
+sudo: required
+dist: trusty
 # since python-openbabel is available for python2 only, I
 # install the dependencies for installing from source
 addons:
