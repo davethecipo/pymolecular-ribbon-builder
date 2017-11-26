@@ -29,11 +29,16 @@ before_install:
   - sudo make install
   - sudo ldconfig
   - export PYTHONPATH=/usr/local/lib:$PYTHONPATH
+  - echo $PYTHONPATH
+  - ls /usr/local/lib
 cache:
   directories:
   - /home/travis/openbabel
+  - /home/travis/build-2-4-1
+  - /home/travis/build-2-3-2
 install:
  - cd $TRAVIS_BUILD_DIR
+ - echo $PYTHONPATH
  - python setup.py develop
  - pip install -r test_requirements.txt
 # command to run tests
