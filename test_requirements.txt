@@ -1,0 +1,6 @@
+Sphinx
+alabaster
+pytest
+pytest-cov
+codecov
+scripttest
