@@ -7,8 +7,8 @@ import openbabel
 
 
 class MolBuilder(object):
-    def __init__(self, oligomer, polymer, a1, a2, n, m, base):
-        self.oligomer = oligomer
+    def __init__(self, monomer, polymer, a1, a2, n, m, base):
+        self.monomer = monomer
         self.polymer = polymer
         self.a1 = a1
         self.a2 = a2
@@ -71,7 +71,7 @@ class MolBuilder(object):
         after applying the translation.
         """
         for index in atom_indexes:
-            atom = self.oligomer.GetAtom(index)
+            atom = self.monomer.GetAtom(index)
             initial_pos = np.array([atom.GetX(), atom.GetY(), atom.GetZ()])
             final_pos = initial_pos + translation
             new_atom = openbabel.OBAtom()
