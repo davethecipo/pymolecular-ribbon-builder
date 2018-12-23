@@ -8,9 +8,10 @@ pylint = "*"
 rope = "*"
 
 [packages]
-"e1839a8" = {editable = true, path = "."}
 matplotlib = "*"
 "pyqt5" = "*"
+openbabel = "*"
+molecular-ribbon-builder = {path = ".",editable = true}
 
 [requires]
 python_version = "3.5"
